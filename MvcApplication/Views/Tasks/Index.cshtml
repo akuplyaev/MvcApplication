@@ -1,0 +1,21 @@
+﻿@model MvcApplication.Models.Task
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div> 
+        <h2>GUID:@Model.GUID_Id</h2>
+        <h2>Deadline:@Model.Deadline</h2>
+        <h2>Title:@Model.Title</h2>
+    </div>
+</body>
+</html>
