@@ -7,6 +7,7 @@ using System.Web.Routing;
 using System.Web.Security;
 using System.Web.SessionState;
 using System.Web.Http;
+using MvcApplication.App_Start;
 
 namespace MvcApplication
 {
@@ -15,6 +16,7 @@ namespace MvcApplication
         void Application_Start(object sender, EventArgs e)
         {
             // Код, выполняемый при запуске приложения
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             RouteConfig.RegisterRoutes(RouteTable.Routes);            

@@ -12,8 +12,8 @@ namespace MvcApplication.Controllers
         // GET: Tasks
         public ActionResult Index()
         {
-            Task task = new Task(1, "test1", new DateTime(2016, 07, 12));
-            return View(task);           
+            Task task = new Task(1, "test1", new DateTime(2016, 07, 12));           
+            return View(task);
         }
     }
 }
