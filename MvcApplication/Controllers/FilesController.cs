@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
@@ -18,15 +14,21 @@ namespace MvcApplication.Controllers
         }
 
         [HttpPost]
-        public  void Upload()
+        public HttpResponseMessage Post()
         {
-            if (!Request.Content.IsMimeMultipartContent())
-                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            var httpRequest = HttpContext.Current.Request;
+            if (httpRequest.Files.Count > 0)
+            {
+                for (int i = 0; i < httpRequest.Files.Count; i++)
+                {
+                    var postedFile = httpRequest.Files[i];
+                    var filePath = HttpContext.Current.Server.MapPath("~/App_Data/" + postedFile.FileName);
+                    postedFile.SaveAs(filePath);
+                }
+                return Request.CreateResponse(HttpStatusCode.Created);
+            }
 
-            string root = HttpContext.Current.Server.MapPath("~/App_Data");
-            var provider = new MultipartFormDataStreamProvider(root);
-
-             Request.Content.ReadAsMultipartAsync(provider);
+            return Request.CreateResponse(HttpStatusCode.BadRequest);
         }
     }
 }
