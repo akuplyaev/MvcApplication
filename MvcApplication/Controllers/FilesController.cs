@@ -1,5 +1,7 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
@@ -8,9 +10,18 @@ namespace MvcApplication.Controllers
     public class FilesController : ApiController
     {
         [HttpGet]
-        public string Get()
-        {
-            return "ApiController";
+        public   HttpResponseMessage Get()
+        {           
+            DirectoryInfo dirInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath("~/App_Data/"));
+            string filesstring = "";
+          
+            foreach (FileInfo file in dirInfo.GetFiles())
+            {
+                filesstring += " " + file;
+            }     
+                          
+             return Request.CreateResponse(HttpStatusCode.OK, filesstring);     
+                   
         }
 
         [HttpPost]
