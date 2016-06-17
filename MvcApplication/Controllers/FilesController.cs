@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -10,36 +12,67 @@ namespace MvcApplication.Controllers
     public class FilesController : ApiController
     {
         [HttpGet]
-        public   HttpResponseMessage Get()
-        {           
+        public HttpResponseMessage Get()
+        {
             DirectoryInfo dirInfo = new DirectoryInfo(HttpContext.Current.Server.MapPath("~/App_Data/"));
-            string filesstring = "";
-          
+            List<string> list = new List<string>();
             foreach (FileInfo file in dirInfo.GetFiles())
             {
-                filesstring += " " + file;
-            }     
-                          
-             return Request.CreateResponse(HttpStatusCode.OK, filesstring);     
-                   
+                list.Add(file.Name);
+            }
+            HttpResponseMessage respone = Request.CreateResponse(HttpStatusCode.OK);
+            string filesname = string.Join(", ", list);
+            respone.Content = new StringContent(filesname);
+            return respone;
         }
 
         [HttpPost]
-        public HttpResponseMessage Post()
-        {
-            var httpRequest = HttpContext.Current.Request;
-            if (httpRequest.Files.Count > 0)
+        public async Task<HttpResponseMessage> Post()
+        {            
+            if (!Request.Content.IsMimeMultipartContent())
             {
-                for (int i = 0; i < httpRequest.Files.Count; i++)
-                {
-                    var postedFile = httpRequest.Files[i];
-                    var filePath = HttpContext.Current.Server.MapPath("~/App_Data/" + postedFile.FileName);
-                    postedFile.SaveAs(filePath);
-                }
-                return Request.CreateResponse(HttpStatusCode.Created);
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
 
-            return Request.CreateResponse(HttpStatusCode.BadRequest);
+            string root = HttpContext.Current.Server.MapPath("~/App_Data");
+            var provider = new MyStreamProvider(root);
+            await Request.Content.ReadAsMultipartAsync(provider);
+            List<string> files = new List<string>();
+            foreach (var file in provider.FileData)
+            {                
+                string filename = file.Headers.ContentDisposition.FileName.Replace("\"", string.Empty);              
+                files.Add(Path.GetFileName(file.LocalFileName));
+            }
+           
+            return Request.CreateResponse(HttpStatusCode.OK, files);
         }
+
     }
+
 }
+
+
+
+
+//public HttpResponseMessage Post()
+//{
+//    var httpRequest = HttpContext.Current.Request;
+//    if (httpRequest.Files.Count > 0)
+//    {
+//        //foreach (string file in httpRequest.Files)
+//        //{
+//        //    var postfile = httpRequest.Files[file];
+//        //     var filePath = HttpContext.Current.Server.MapPath("~/App_Data/" + postFile.FileName);
+//        //     postFile.SaveAs(filePath);
+//        //}
+//        for (int i = 0; i < httpRequest.Files.Count; i++)
+//        {
+//            var postFile = httpRequest.Files[i];
+//            var filePath = HttpContext.Current.Server.MapPath("~/App_Data/" + postFile.FileName);
+//            postFile.SaveAs(filePath);
+//        }
+//        return Request.CreateResponse(HttpStatusCode.Created);
+//    }
+
+//    return Request.CreateResponse(HttpStatusCode.BadRequest);
+//}
