@@ -39,8 +39,7 @@ namespace MvcApplication.Controllers
             await Request.Content.ReadAsMultipartAsync(provider);
             List<string> files = new List<string>();
             foreach (var file in provider.FileData)
-            {                
-                string filename = file.Headers.ContentDisposition.FileName.Replace("\"", string.Empty);              
+            {                                             
                 files.Add(Path.GetFileName(file.LocalFileName));
             }
            
